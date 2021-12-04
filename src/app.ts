@@ -1,7 +1,9 @@
-import express from "express";
-import pinoHttp from "pino-http";
 import "express-async-errors";
 
+import express from "express";
+import pinoHttp from "pino-http";
+
+import { rootRouter } from "./router";
 import { errorMiddleware, notFoundMiddleware } from "./util/error";
 import { logger } from "./util/logger";
 
@@ -11,7 +13,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(pinoHttp({ logger }));
 
-app.get("/api/health", (req, res) => res.send({ message: "OK" }));
+app.use("/api", rootRouter);
 
 app.use([notFoundMiddleware, errorMiddleware]);
 
