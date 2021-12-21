@@ -1,27 +1,45 @@
 import { User } from "./user.type";
+import * as dbConnection from "../../database/connection";
+import { Knex } from "knex";
 
-const userDb: User[] = [];
+const db: Knex = dbConnection.default;
 
 class UserRepo {
-  list(): User[] {
-    return userDb;
+  private tableName = "users";
+  private defaultColumns = ["id", "name", "phone_number", "email"];
+
+  async list(): Promise<User[]> {
+    const result = (await db(this.tableName).select(
+      this.defaultColumns
+    )) as User[];
+    return result;
   }
 
-  find(id: string): User | undefined {
-    return userDb.find(user => user.id === id);
+  async find(id: string): Promise<User | undefined> {
+    const result = (
+      (await db(this.tableName)
+        .select(this.defaultColumns)
+        .where("id", "=", id)) as User[]
+    )[0];
+    return result;
   }
 
-  findByUsername(username: string): User | undefined {
-    return userDb.find(user => user.username === username);
+  async findByPhoneNumber(phone_number: string): Promise<User | undefined> {
+    const result = await db<User>(this.tableName)
+      .where("phone_number", phone_number)
+      .first();
+    return result;
   }
 
-  findByEmail(email: string): User | undefined {
-    return userDb.find(user => user.email === email);
+  async findByEmail(email: string): Promise<User | undefined> {
+    const result = await db<User>(this.tableName).where("email", email).first();
+    return result;
   }
 
-  insert(user: User): User {
-    userDb.push(user);
-    return user;
+  async insert(user: User): Promise<number[]> {
+    const result = await db<User>(this.tableName).insert(user);
+    console.log("insert result: ", result);
+    return result;
   }
 }
 

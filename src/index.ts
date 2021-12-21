@@ -13,8 +13,10 @@ process.on("uncaughtException", err => {
   handle(err);
 });
 
-const server = app.listen(config.port, () => {
-  logger.info(`started server on: ${config.port} in ${config.env} mode`);
+const server = app.listen(config.app.port, () => {
+  logger.info(
+    `started server on: ${config.app.port} in ${config.app.env} mode`
+  );
 });
 
 const httpTerminator = createHttpTerminator({ server });

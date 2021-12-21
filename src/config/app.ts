@@ -1,8 +1,8 @@
 import joi from "joi";
 
-import { loadConfig } from "./util/load-config";
+import { loadConfig } from "../util/load-config";
 
-export interface Env {
+export interface AppEnv {
   NODE_ENV: "development" | "test" | "production";
   PORT: number;
 }
@@ -20,7 +20,7 @@ const schema = joi
 
 const env = loadConfig(schema);
 
-export const config = {
+export const app = {
   env: env.NODE_ENV,
   port: env.PORT,
 };
