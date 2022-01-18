@@ -3,9 +3,10 @@ export interface User {
   name: string;
   phone_number: string;
   email: string;
-  password: string;
+  password?: string;
   created_at?: Date;
   updated_at?: Date;
+  token?: string;
 }
 
 export interface UserSignupPayload {
@@ -13,4 +14,10 @@ export interface UserSignupPayload {
   phone_number: string;
   email: string;
   password: string;
+}
+
+export interface UserLoginPayload {
+  phone_number?: string;
+  email?: string;
+  otp: string;
 }
