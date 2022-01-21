@@ -16,8 +16,11 @@ export interface UserSignupPayload {
   password: string;
 }
 
-export interface UserLoginPayload {
+export interface UserAuthPayload {
   phone_number?: string;
   email?: string;
+}
+
+export interface UserLoginPayload extends UserAuthPayload {
   otp: string;
 }

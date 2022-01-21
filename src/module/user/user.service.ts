@@ -5,9 +5,15 @@ import { ulid } from "ulid";
 
 import { config } from "../../config";
 import { logger } from "../../util/logger";
+import { setCache, getCache, delCache } from "../../common/cache";
 
 import { userRepo } from "./user.repo";
-import type { User, UserLoginPayload, UserSignupPayload } from "./user.type";
+import type {
+  User,
+  UserAuthPayload,
+  UserLoginPayload,
+  UserSignupPayload,
+} from "./user.type";
 
 class UserService {
   async signup({
@@ -49,11 +55,7 @@ class UserService {
     return users;
   }
 
-  async login({
-    phone_number,
-    email,
-    otp,
-  }: UserLoginPayload): Promise<{ user: User; token: string }> {
+  async validateUser({ phone_number, email }: UserAuthPayload): Promise<User> {
     let user: User | null = null;
     if (phone_number) {
       const userByPhoneNumber = await userRepo.findByPhoneNumber(phone_number);
@@ -78,14 +80,43 @@ class UserService {
       throw boom.badRequest(`Login Invalid, phone_number or email not defined`);
     }
 
+    return user;
+  }
+
+  getAuthKey(id: string) {
+    return `user:auth:${id}`;
+  }
+
+  async generateOTP({ phone_number, email }: UserAuthPayload) {
+    const user: User = await this.validateUser({ phone_number, email });
+    let code = "";
+    for (let i = 0; i < 4; i++) {
+      const rand = Math.floor(Math.random() * 10) + 1;
+      code = `${code}${rand}`;
+    }
+    await setCache(this.getAuthKey(user.id), code, 300);
+
+    return { message: "OTP Sent" };
+  }
+
+  async login({
+    phone_number,
+    email,
+    otp,
+  }: UserLoginPayload): Promise<{ user: User; token: string }> {
+    const user: User = await this.validateUser({ phone_number, email });
+
     // user exists, validate otp
-    if (otp != "1234") {
+    const authKey = this.getAuthKey(user.id);
+    const savedOtp = await getCache(authKey);
+    if (otp != savedOtp) {
       // TODO: need to fix static otp
       logger.error(`Login Invalid, wrong otp`);
       throw boom.badRequest(`Login Invalid, wrong otp`);
     }
 
     // otp valid, generate token
+    await delCache(authKey);
     const token = this.generateToken(user.id);
     // remove unwanted data
     delete user.created_at;

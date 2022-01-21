@@ -10,6 +10,12 @@ router.post("/", async (req, res) => {
   res.status(201).json({ user });
 });
 
+// otp
+router.post("/otp", async (req, res) => {
+  const result = await userService.generateOTP({ ...req.body });
+  res.status(200).json(result);
+});
+
 // login
 router.post("/login", async (req, res) => {
   const { user, token } = await userService.login({ ...req.body });

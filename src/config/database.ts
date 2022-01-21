@@ -28,13 +28,23 @@ const schema = joi
 const env = loadConfig(schema);
 
 export const database = {
-  host: env.DB_HOST,
-  port: env.DB_PORT,
-  username: env.DB_USER,
-  password: env.DB_PASS,
-  name: env.DB_NAME,
+  client: "mysql2",
+  connection: {
+    host: env.DB_HOST,
+    port: env.DB_PORT,
+    user: env.DB_USER,
+    password: env.DB_PASS,
+    database: env.DB_NAME,
+  },
   pool: {
     min: env.DB_POOL_MIN,
     max: env.DB_POOL_MAX,
+  },
+  migrations: {
+    directory: "../database/migrations",
+    tableName: "knex_migrations",
+  },
+  seeds: {
+    directory: "../database/seeds",
   },
 };

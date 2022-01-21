@@ -1,5 +1,5 @@
 import { User } from "./user.type";
-import * as dbConnection from "../../database/connection";
+import * as dbConnection from "../../common/database";
 import { Knex } from "knex";
 
 const db: Knex = dbConnection.default;
