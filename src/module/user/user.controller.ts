@@ -12,7 +12,7 @@ router.post("/", async (req, res) => {
 
 // otp
 router.post("/otp", async (req, res) => {
-  const result = await userService.generateOTP({ ...req.body });
+  const result = await userService.sendOtp({ ...req.body });
   res.status(200).json(result);
 });
 

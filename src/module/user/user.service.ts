@@ -83,17 +83,9 @@ class UserService {
     return user;
   }
 
-  getAuthKey(id: string) {
-    return `user:auth:${id}`;
-  }
-
-  async generateOTP({ phone_number, email }: UserAuthPayload) {
+  async sendOtp({ phone_number, email }: UserAuthPayload) {
     const user: User = await this.validateUser({ phone_number, email });
-    let code = "";
-    for (let i = 0; i < 4; i++) {
-      const rand = Math.floor(Math.random() * 10) + 1;
-      code = `${code}${rand}`;
-    }
+    const code = this.generateOTP();
     await setCache(this.getAuthKey(user.id), code, 300);
 
     return { message: "OTP Sent" };
@@ -125,7 +117,20 @@ class UserService {
     return { user, token };
   }
 
-  generateToken(userId: string) {
+  getAuthKey(id: string): string {
+    return `user:auth:${id}`;
+  }
+
+  generateOTP(): string {
+    let code = "";
+    for (let i = 0; i < 4; i++) {
+      const rand = Math.floor(Math.random() * 10) + 1;
+      code = `${code}${rand}`;
+    }
+    return code;
+  }
+
+  generateToken(userId: string): string {
     const { secret, expire } = config.app.token;
     return jwt.sign({ uid: userId }, secret, { expiresIn: expire });
   }
